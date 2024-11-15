@@ -1,0 +1,16 @@
+{
+    "required": true,
+    "minVersion": "0.8",
+    "package": "io.github.lapis256.ae2_toggleable_view_cell.mixin",
+    "refmap": "${mod_id}.refmap.json",
+    "compatibilityLevel": "JAVA_17",
+    "server": [
+    ],
+    "injectors": {
+        "defaultRequire": 1
+    },
+    "mixins": [
+        "MixinRestrictedInputSlot",
+        "MixinMEStorageMenu"
+    ]
+}

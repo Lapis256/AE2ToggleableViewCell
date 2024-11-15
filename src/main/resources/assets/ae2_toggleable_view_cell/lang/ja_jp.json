@@ -1,0 +1,5 @@
+{
+  "item.ae2_toggleable_view_cell.toggleable_view_cell": "切替可能表示セル",
+  "item.ae2_toggleable_view_cell.toggleable_view_cell.tooltip.enabled": "有効: %s",
+  "item.ae2_toggleable_view_cell.toggleable_view_cell.tooltip.howto": "右クリックで切替え"
+}
