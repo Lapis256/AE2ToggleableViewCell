@@ -28,7 +28,7 @@ import java.util.function.Supplier;
 @Mod(AE2ToggleableViewCell.MOD_ID)
 public class AE2ToggleableViewCell {
     public static final String MOD_ID = "ae2_toggleable_view_cell";
-    public static final String MOD_NAME = "AE2 Toggleable ViewCell";
+    public static final String MOD_NAME = "AE2 Toggleable View Cell";
 
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_NAME);
 

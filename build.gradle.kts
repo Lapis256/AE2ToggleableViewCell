@@ -138,6 +138,8 @@ tasks {
             "mod_name" to Constants.Mod.name,
             "mod_author" to Constants.Mod.author,
             "mod_id" to Constants.Mod.id,
+            "logo_file" to "assets/ae2_toggleable_view_cell/textures/item/toggleable_view_cell_enabled.png",
+            "logo_blur" to "false",
             "license" to Constants.Mod.license,
             "description" to Constants.Mod.description,
             "display_url" to Constants.Mod.repositoryUrl,

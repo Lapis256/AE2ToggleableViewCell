@@ -19,7 +19,7 @@ import java.util.List;
 
 public class ToggleableViewCellItem extends ViewCellItem {
     public ToggleableViewCellItem() {
-        super(new Item.Properties().stacksTo(1).component(AE2ToggleableViewCell.ENABLED_COMPONENT, false));
+        super(new Item.Properties().stacksTo(1).component(AE2ToggleableViewCell.ENABLED_COMPONENT, true));
     }
 
     public static boolean isEnabled(ItemStack stack) {
@@ -30,7 +30,7 @@ public class ToggleableViewCellItem extends ViewCellItem {
     }
 
     public boolean getEnabled(ItemStack stack) {
-        return stack.getOrDefault(AE2ToggleableViewCell.ENABLED_COMPONENT, false);
+        return stack.getOrDefault(AE2ToggleableViewCell.ENABLED_COMPONENT, true);
     }
 
     public void setEnabled(ItemStack stack, boolean enabled) {
