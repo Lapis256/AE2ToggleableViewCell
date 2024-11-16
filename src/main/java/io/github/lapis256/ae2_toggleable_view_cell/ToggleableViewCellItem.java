@@ -12,16 +12,14 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nullable;
 import java.util.List;
 
 
 public class ToggleableViewCellItem extends ViewCellItem {
     public ToggleableViewCellItem() {
-        super(new Item.Properties().stacksTo(1));
+        super(new Item.Properties().stacksTo(1).component(AE2ToggleableViewCell.ENABLED_COMPONENT, false));
     }
 
     public static boolean isEnabled(ItemStack stack) {
@@ -32,11 +30,11 @@ public class ToggleableViewCellItem extends ViewCellItem {
     }
 
     public boolean getEnabled(ItemStack stack) {
-        return stack.getOrCreateTag().getBoolean("Enabled");
+        return stack.getOrDefault(AE2ToggleableViewCell.ENABLED_COMPONENT, false);
     }
 
     public void setEnabled(ItemStack stack, boolean enabled) {
-        stack.getOrCreateTag().putBoolean("Enabled", enabled);
+        stack.set(AE2ToggleableViewCell.ENABLED_COMPONENT, enabled);
     }
 
     public void toggle(ItemStack stack) {
@@ -50,12 +48,12 @@ public class ToggleableViewCellItem extends ViewCellItem {
         }
 
         item.toggle(first);
-        player.playSound(SoundEvents.UI_BUTTON_CLICK.get(), 0.2f, 1);
+        player.playSound(SoundEvents.UI_BUTTON_CLICK.value(), 0.2f, 1);
         return true;
     }
 
     @Override
-    public void appendHoverText(@NotNull ItemStack stack, @Nullable Level level, @NotNull List<Component> components, @NotNull TooltipFlag flag) {
+    public void appendHoverText(@NotNull ItemStack stack, @NotNull TooltipContext context, @NotNull List<Component> components, @NotNull TooltipFlag tooltipFlag) {
         var status = (getEnabled(stack) ? GuiText.Yes.text().withStyle(ChatFormatting.GREEN) : GuiText.No.text().withStyle(ChatFormatting.RED));
         components.add(Component.translatable("item.ae2_toggleable_view_cell.toggleable_view_cell.tooltip.enabled", status));
         components.add(Component.translatable("item.ae2_toggleable_view_cell.toggleable_view_cell.tooltip.howto").withStyle(ChatFormatting.GRAY));

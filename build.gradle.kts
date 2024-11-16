@@ -6,15 +6,14 @@ plugins {
     id("java-library")
     id("idea")
 
-    alias(libs.plugins.forge)
-    alias(libs.plugins.mixin)
-    alias(libs.plugins.parchmentmc)
+    id("localRuntime")
+
+    alias(libs.plugins.neoforge)
 }
 
 val modId = Constants.Mod.id
 val minecraftVersion: String = libs.versions.minecraft.get()
-val forgeMajorVersion: String = extractVersionSegments(libs.versions.forge)
-val jdkVersion = 17
+val jdkVersion = 21
 
 
 base {
@@ -31,109 +30,80 @@ sourceSets {
     }
 }
 
-minecraft {
-    mappings("parchment", "${libs.versions.parchmentmc.get()}-$minecraftVersion")
-
-    copyIdeResources = true
+neoForge {
+    version = libs.versions.neoforge.get()
 
     file("src/main/resources/META-INF/accesstransformer.cfg").takeIf(File::exists)?.let {
         println("Adding access transformer: $it")
-        accessTransformer(it)
+        setAccessTransformers(it)
+    }
+
+    parchment {
+        mappingsVersion = libs.versions.parchmentmc.get()
+        minecraftVersion = extractVersionSegments(libs.versions.minecraft, 2)
     }
 
     runs {
-        configureEach {
-            ideaModule("${rootProject.name}.${project.name}.main")
-
-            properties(
-                mapOf(
-                    "forge.logging.markers" to "REGISTRIES", "forge.logging.console.level" to "debug"
-                )
-            )
-
-            jvmArgs(
-                "-XX:+AllowEnhancedClassRedefinition", "-Dmixin.debug.export=true"
-            )
-
-            mods {
-                create(modId) {
-                    source(sourceSets["main"])
-                }
-            }
-        }
-
         create("client") {
-            taskName("Forge Client")
-
-            workingDirectory(project.file("run"))
-
-            property("forge.enabledGameTestNamespaces", modId)
+            client()
+            systemProperty("neoforge.enabledGameTestNamespaces", modId)
+            jvmArgument("-Dmixin.debug.export=true")
         }
 
         create("server") {
-            taskName("Forge Server")
+            server()
+            programArgument("--nogui")
+            systemProperty("neoforge.enabledGameTestNamespaces", modId)
+            jvmArgument("-Dmixin.debug.export=true")
+        }
 
-            workingDirectory(project.file("run-server"))
-
-            property("forge.enabledGameTestNamespaces", modId)
+        create("gameTestServer") {
+            type = "gameTestServer"
+            systemProperty("neoforge.enabledGameTestNamespaces", modId)
         }
 
         create("data") {
-            taskName("Generate Data")
-
-            workingDirectory(project.file("run-data"))
-
-            args(
-                "--mod", modId, "--all", "--output", file("src/generated/resources/"), "--existing", file("src/main/resources/")
+            data()
+            programArguments.addAll(
+                "--mod",
+                modId,
+                "--all",
+                "--output",
+                file("src/generated/resources/").absolutePath,
+                "--existing",
+                file("src/main/resources/").absolutePath
             )
-            jvmArgs("-Dmixin.debug.export=false")
+        }
+
+        configureEach {
+            systemProperty("forge.logging.markers", "REGISTRIES")
+
+            logLevel = org.slf4j.event.Level.DEBUG
         }
     }
-}
 
-mixin {
-    add(sourceSets["main"], "${modId}.refmap.json")
-
-    config("${modId}.mixins.json")
+    mods {
+        create(modId) {
+            sourceSet(sourceSets["main"])
+        }
+    }
 }
 
 repositories {
     mavenCentral()
     maven {
-        name = "Sponge / Mixin"
-        url = uri("https://repo.spongepowered.org/repository/maven-public/")
-    }
-    maven {
         name = "JEI / AE2"
         url = uri("https://modmaven.dev/")
-    }
-    maven {
-        name = "Curse Maven"
-        url = uri("https://cursemaven.com")
     }
 }
 
 dependencies {
-    minecraft(libs.minecraftForge)
-
-    implementation(deobf(libs.ae2))
-    runtimeOnly(deobf(libs.jei))
-
-    annotationProcessor(variantOf(libs.mixin, "processor"))
-    libs.mixinExtrasCommon.let {
-        annotationProcessor(it)
-        compileOnly(it)
-    }
-    libs.mixinExtrasForge.let {
-        jarJar(it) {
-            jarJar.ranged(this, "[${it.get().version},)")
-        }
-        implementation(it)
-    }
+    implementation(libs.ae2)
+    localRuntime(libs.jei)
 }
 
 val modDependencies = buildDeps(
-    ModDep("forge", forgeMajorVersion),
+    ModDep("neoforge", extractVersionSegments(libs.versions.neoforge, 2)),
     ModDep("minecraft", minecraftVersion),
     ModDep("ae2", extractVersionSegments(libs.versions.ae2)),
 )
@@ -145,15 +115,17 @@ tasks {
     }
 
     java {
-        withSourcesJar()
         toolchain {
             languageVersion = JavaLanguageVersion.of(jdkVersion)
-            vendor = JvmVendorSpec.JETBRAINS
         }
         JavaVersion.toVersion(jdkVersion).let {
             sourceCompatibility = it
             targetCompatibility = it
         }
+    }
+
+    named<Wrapper>("wrapper").configure {
+        distributionType = Wrapper.DistributionType.BIN
     }
 
     processResources {
@@ -162,7 +134,7 @@ tasks {
             "group" to Constants.Mod.group,
             "minecraft_version" to minecraftVersion,
             "mod_loader" to "javafml",
-            "mod_loader_version_range" to "[$forgeMajorVersion,)",
+            "mod_loader_version_range" to "[2,)",
             "mod_name" to Constants.Mod.name,
             "mod_author" to Constants.Mod.author,
             "mod_id" to Constants.Mod.id,
@@ -175,7 +147,7 @@ tasks {
             "dependencies" to modDependencies
         )
 
-        filesMatching(listOf("pack.mcmeta", "META-INF/mods.toml", "*.mixins.json")) {
+        filesMatching(listOf("pack.mcmeta", "META-INF/neoforge.mods.toml", "*.mixins.json")) {
             expand(prop)
         }
         inputs.properties(prop)
@@ -200,15 +172,12 @@ tasks {
                 "Built-On-Minecraft" to minecraftVersion,
             )
         }
-
-        finalizedBy("reobfJar")
-    }
-
-    named<Jar>("sourcesJar") {
-        from(rootProject.file("LICENSE")) {
-            rename { "LICENSE_${Constants.Mod.id}" }
-        }
     }
 }
 
-fun deobf(dependency: Provider<MinimalExternalModuleDependency>) = fg.deobf(dependency.get())
+idea {
+    module {
+        isDownloadJavadoc = true
+        isDownloadSources = true
+    }
+}
