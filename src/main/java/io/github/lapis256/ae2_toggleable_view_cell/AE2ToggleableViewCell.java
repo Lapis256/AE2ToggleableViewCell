@@ -17,7 +17,6 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegisterEvent;
 import net.minecraftforge.registries.RegistryObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +25,7 @@ import org.slf4j.LoggerFactory;
 @Mod(AE2ToggleableViewCell.MOD_ID)
 public class AE2ToggleableViewCell {
     public static final String MOD_ID = "ae2_toggleable_view_cell";
-    public static final String MOD_NAME = "AE2 Toggleable ViewCell";
+    public static final String MOD_NAME = "AE2 Toggleable View Cell";
 
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_NAME);
 

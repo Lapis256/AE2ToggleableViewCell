@@ -32,7 +32,11 @@ public class ToggleableViewCellItem extends ViewCellItem {
     }
 
     public boolean getEnabled(ItemStack stack) {
-        return stack.getOrCreateTag().getBoolean("Enabled");
+        var tag = stack.getOrCreateTag();
+        if (tag.contains("Enabled")) {
+            return tag.getBoolean("Enabled");
+        }
+        return true;
     }
 
     public void setEnabled(ItemStack stack, boolean enabled) {

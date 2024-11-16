@@ -1,7 +1,7 @@
 object Constants {
     object Mod {
         const val id = "ae2_toggleable_view_cell"
-        const val name = "AE2ToggleableViewCell"
+        const val name = "AE2 Toggleable View Cell"
         const val description = "A mod that adds a toggleable view cell to AE2"
         const val license = "MIT"
         const val version = "1.0.0"
