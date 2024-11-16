@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 
-@Mixin(value = RestrictedInputSlot.class, remap = false)
+@Mixin(value = RestrictedInputSlot.class)
 public abstract class MixinRestrictedInputSlot {
     @ModifyReturnValue(method = "mayPlace", at = @At(value = "RETURN", ordinal = 13))
     private boolean ae2_toggleable_view_cell$mayPlaceAllowToggleableViewCellItem(boolean original, ItemStack stack) {
