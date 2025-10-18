@@ -44,25 +44,25 @@ neoForge {
     }
 
     runs {
-        create("client") {
+        register("client") {
             client()
             systemProperty("neoforge.enabledGameTestNamespaces", modId)
             jvmArgument("-Dmixin.debug.export=true")
         }
 
-        create("server") {
+        register("server") {
             server()
             programArgument("--nogui")
             systemProperty("neoforge.enabledGameTestNamespaces", modId)
             jvmArgument("-Dmixin.debug.export=true")
         }
 
-        create("gameTestServer") {
+        register("gameTestServer") {
             type = "gameTestServer"
             systemProperty("neoforge.enabledGameTestNamespaces", modId)
         }
 
-        create("data") {
+        register("data") {
             data()
             programArguments.addAll(
                 "--mod",
@@ -92,7 +92,7 @@ neoForge {
 repositories {
     mavenCentral()
     maven {
-        name = "JEI / AE2"
+        name = "JEI"
         url = uri("https://modmaven.dev/")
     }
 }
