@@ -224,7 +224,7 @@ publishMods {
         serverRequired = true
 
         projectId = Constants.Publisher.CURSEFORGE_PROJECT_ID
-        accessToken = System.getenv("CURSEFORGE_TOKEN") ?: error("CURSEFORGE_TOKEN environment variable not set")
+        accessToken = System.getenv("CURSEFORGE_TOKEN")
         javaVersions.add(JavaVersion.toVersion(jdkVersion))
         changelogType = "markdown"
     }
@@ -235,7 +235,7 @@ publishMods {
         minecraftVersions.add("26.1-snapshot")
 
         projectId = Constants.Publisher.MODRINTH_PROJECT_ID
-        accessToken = System.getenv("MODRINTH_TOKEN") ?: error("MODRINTH_TOKEN environment variable not set")
+        accessToken = System.getenv("MODRINTH_TOKEN")
     }
 
     dryRun = project.hasProperty("modPublishDryRun")
