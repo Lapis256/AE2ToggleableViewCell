@@ -1,8 +1,6 @@
 package io.github.lapis256.ae2_toggleable_view_cell;
 
-import appeng.core.localization.GuiText;
 import appeng.items.storage.ViewCellItem;
-import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.SlotAccess;
@@ -12,33 +10,33 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 
-import java.util.List;
+import java.util.function.Consumer;
 
 
 public class ToggleableViewCellItem extends ViewCellItem {
-    public ToggleableViewCellItem() {
-        super(new Item.Properties().stacksTo(1).component(AE2ToggleableViewCell.ENABLED_COMPONENT, true));
+    public ToggleableViewCellItem(Item.Properties properties) {
+        super(
+            properties
+                .stacksTo(1)
+                .component(AE2ToggleableViewCell.STATE_COMPONENT, ToggleableViewCellState.DEFAULT)
+        );
     }
 
     public static boolean isEnabled(ItemStack stack) {
-        if (stack.getItem() instanceof ToggleableViewCellItem item) {
-            return item.getEnabled(stack);
-        }
-        return true;
+        return getState(stack).isEnabled();
     }
 
-    public boolean getEnabled(ItemStack stack) {
-        return stack.getOrDefault(AE2ToggleableViewCell.ENABLED_COMPONENT, true);
-    }
-
-    public void setEnabled(ItemStack stack, boolean enabled) {
-        stack.set(AE2ToggleableViewCell.ENABLED_COMPONENT, enabled);
+    private static ToggleableViewCellState getState(ItemStack stack) {
+        return stack.getOrDefault(AE2ToggleableViewCell.STATE_COMPONENT, ToggleableViewCellState.DEFAULT);
     }
 
     public void toggle(ItemStack stack) {
-        setEnabled(stack, !getEnabled(stack));
+        var toggled = getState(stack).toggled();
+        stack.set(AE2ToggleableViewCell.STATE_COMPONENT, toggled);
     }
 
     @Override
@@ -52,10 +50,9 @@ public class ToggleableViewCellItem extends ViewCellItem {
         return true;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
-    public void appendHoverText(@NotNull ItemStack stack, @NotNull TooltipContext context, @NotNull List<Component> components, @NotNull TooltipFlag tooltipFlag) {
-        var status = (getEnabled(stack) ? GuiText.Yes.text().withStyle(ChatFormatting.GREEN) : GuiText.No.text().withStyle(ChatFormatting.RED));
-        components.add(Component.translatable("item.ae2_toggleable_view_cell.toggleable_view_cell.tooltip.enabled", status));
-        components.add(Component.translatable("item.ae2_toggleable_view_cell.toggleable_view_cell.tooltip.howto").withStyle(ChatFormatting.GRAY));
+    public void appendHoverText(@NonNull ItemStack stack, @NonNull TooltipContext context, @NonNull TooltipDisplay display, @NonNull Consumer<Component> builder, @NonNull TooltipFlag tooltipFlag) {
+        getState(stack).addToTooltip(context, builder, tooltipFlag, stack.immutableComponents());
     }
 }

@@ -1,0 +1,52 @@
+name: Draft Release
+
+permissions:
+  contents: write
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Setup common environment
+        uses: ./.github/actions/setup-common-env
+
+      - name: Build and upload artifacts
+        uses: ./.github/actions/build-and-upload-artifacts
+
+#      - name: Publish
+#        env:
+#          CHANGELOG: ${{ github.event.release.body }}
+#          CURSEFORGE_TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
+#          MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+##          R2_ACCESS_KEY: ${{ secrets.R2_ACCESS_KEY }}
+##          R2_SECRET_KEY: ${{ secrets.R2_SECRET_KEY }}
+##        run: ./gradlew -Dorg.gradle.s3.endpoint=${{ secrets.R2_ENDPOINT }} curseforge publish
+#        run: ./gradlew publishMods
+
+      - name: Create draft release and upload assets
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${{ github.ref_name }}"
+
+          gh release create "$TAG" \
+            --draft \
+            --title "[] $TAG" \
+            --generate-notes
+
+          gh release upload "$TAG" build/libs/* --clobber

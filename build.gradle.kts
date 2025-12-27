@@ -1,3 +1,5 @@
+import net.neoforged.moddevgradle.internal.RunGameTask
+import org.apache.tools.ant.filters.ReplaceTokens
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -8,39 +10,68 @@ plugins {
 
     id("localRuntime")
 
-    alias(libs.plugins.neoforge)
+    alias(libs.plugins.moddev)
+    alias(libs.plugins.modPublishPlugin)
 }
 
-val modId = Constants.Mod.id
-val minecraftVersion: String = libs.versions.minecraft.get()
-val jdkVersion = 21
+val modId = Constants.Mod.ID
+val mcVersion: String = libs.versions.minecraft.get()
+
+val jdkVersion = Constants.Dev.JDK_VERSION
+val jvmVendor = Constants.Dev.JVM_VENDOR
 
 
 base {
-    archivesName = "${project.name}-$minecraftVersion"
-    version = Constants.Mod.version
-    group = Constants.Mod.group
+    archivesName = project.name
+    version = Constants.Mod.VERSION
+    group = Constants.Mod.GROUP
 }
 
-sourceSets {
-    main {
-        resources {
-            srcDir("src/generated/resources")
-        }
-    }
+val modDependencies = buildDeps(
+    ModDep("neoforge", libs.versions.neoforge.gte()),
+    ModDep("minecraft", mcVersion.gte()),
+    ModDep("ae2", libs.versions.ae2.gte()),
+)
+
+val generateModMetadata by tasks.registering(ProcessResources::class) {
+    val replaceProperties: Map<String, String> = mapOf(
+        "version" to Constants.Mod.VERSION,
+        "group" to Constants.Mod.GROUP,
+        "minecraft_version" to mcVersion,
+        "mod_loader" to "javafml",
+        "mod_loader_version_range" to "[2,)",
+        "mod_name" to Constants.Mod.NAME,
+        "mod_author" to Constants.Mod.AUTHOR,
+        "mod_id" to Constants.Mod.ID,
+        "logo_file" to "assets/ae2_toggleable_view_cell/textures/item/toggleable_view_cell_enabled.png",
+        "logo_blur" to "false",
+        "license" to Constants.Mod.LICENSE,
+        "description" to Constants.Mod.DESCRIPTION,
+        "display_url" to Constants.Mod.REPOSITORY_URL,
+        "display_test" to DisplayTest.IGNORE_SERVER_VERSION.toString(),
+        "issue_tracker_url" to Constants.Mod.ISSUE_TRACKER_URL,
+
+        "dependencies" to modDependencies
+    )
+
+    inputs.properties(replaceProperties)
+    filter<ReplaceTokens>("beginToken" to "\${", "endToken" to "}", "tokens" to replaceProperties)
+    from(rootProject.file("src/templates"))
+    into("build/generated/sources/$modId")
 }
 
 neoForge {
-    version = libs.versions.neoforge.get()
-
-    file("src/main/resources/META-INF/accesstransformer.cfg").takeIf(File::exists)?.let {
-        println("Adding access transformer: $it")
-        setAccessTransformers(it)
+    enable {
+        version = libs.versions.neoforge.get()
+        this.isDisableRecompilation = System.getenv("CI") == "true"
     }
 
-    parchment {
-        mappingsVersion = libs.versions.parchmentmc.get()
-        minecraftVersion = extractVersionSegments(libs.versions.minecraft, 2)
+    validateAccessTransformers = true
+
+    accessTransformers {
+        val atFile = rootProject.file("src/core/resources/META-INF/accesstransformer.cfg").takeIf(File::exists) ?: return@accessTransformers
+        from(atFile)
+        publish(atFile)
     }
 
     runs {
@@ -63,7 +94,7 @@ neoForge {
         }
 
         register("data") {
-            data()
+            clientData()
             programArguments.addAll(
                 "--mod",
                 modId,
@@ -87,6 +118,8 @@ neoForge {
             sourceSet(sourceSets["main"])
         }
     }
+
+    ideSyncTask(generateModMetadata)
 }
 
 repositories {
@@ -97,16 +130,32 @@ repositories {
     }
 }
 
+sourceSets {
+    main {
+        resources {
+            srcDir("src/generated/resources")
+            srcDir(generateModMetadata.get().outputs.files)
+            exclude("**/.cache")
+        }
+    }
+}
+
 dependencies {
     implementation(libs.ae2)
     localRuntime(libs.jei)
 }
 
-val modDependencies = buildDeps(
-    ModDep("neoforge", extractVersionSegments(libs.versions.neoforge, 2)),
-    ModDep("minecraft", minecraftVersion),
-    ModDep("ae2", extractVersionSegments(libs.versions.ae2)),
-)
+java {
+    withSourcesJar()
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(jdkVersion)
+        vendor = jvmVendor
+    }
+    JavaVersion.toVersion(jdkVersion).let {
+        sourceCompatibility = it
+        targetCompatibility = it
+    }
+}
 
 tasks {
     withType<JavaCompile> {
@@ -114,66 +163,45 @@ tasks {
         options.release = jdkVersion
     }
 
-    java {
-        toolchain {
-            languageVersion = JavaLanguageVersion.of(jdkVersion)
-        }
-        JavaVersion.toVersion(jdkVersion).let {
-            sourceCompatibility = it
-            targetCompatibility = it
-        }
-    }
-
     named<Wrapper>("wrapper").configure {
         distributionType = Wrapper.DistributionType.BIN
     }
 
     processResources {
-        val prop: Map<String, String> = mapOf(
-            "version" to Constants.Mod.version,
-            "group" to Constants.Mod.group,
-            "minecraft_version" to minecraftVersion,
-            "mod_loader" to "javafml",
-            "mod_loader_version_range" to "[2,)",
-            "mod_name" to Constants.Mod.name,
-            "mod_author" to Constants.Mod.author,
-            "mod_id" to Constants.Mod.id,
-            "logo_file" to "assets/ae2_toggleable_view_cell/textures/item/toggleable_view_cell_enabled.png",
-            "logo_blur" to "false",
-            "license" to Constants.Mod.license,
-            "description" to Constants.Mod.description,
-            "display_url" to Constants.Mod.repositoryUrl,
-            "display_test" to DisplayTest.IGNORE_SERVER_VERSION.toString(),
-            "issue_tracker_url" to Constants.Mod.issueTrackerUrl,
-
-            "dependencies" to modDependencies
-        )
-
-        filesMatching(listOf("pack.mcmeta", "META-INF/neoforge.mods.toml", "*.mixins.json")) {
-            expand(prop)
-        }
-        inputs.properties(prop)
+        dependsOn(generateModMetadata)
     }
 
     jar {
-        from(rootProject.file("LICENSE")) {
-            rename { "LICENSE_${Constants.Mod.id}" }
-        }
-
         manifest {
             attributes(
-                "Specification-Title" to Constants.Mod.name,
-                "Specification-Vendor" to Constants.Mod.author,
+                "Specification-Title" to Constants.Mod.NAME,
+                "Specification-Vendor" to Constants.Mod.AUTHOR,
                 "Specification-Version" to version,
                 "Implementation-Title" to project.name,
                 "Implementation-Version" to version,
-                "Implementation-Vendor" to Constants.Mod.author,
+                "Implementation-Vendor" to Constants.Mod.AUTHOR,
                 "Implementation-Timestamp" to SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").format(Date()),
                 "Timestamp" to System.currentTimeMillis(),
                 "Built-On-Java" to "${System.getProperty("java.vm.version")} (${System.getProperty("java.vm.vendor")})",
-                "Built-On-Minecraft" to minecraftVersion,
+                "Built-On-Minecraft" to mcVersion,
             )
         }
+    }
+
+    withType<RunGameTask>().configureEach {
+        javaLauncher.set(project.javaToolchains.launcherFor {
+            languageVersion.set(JavaLanguageVersion.of(jdkVersion))
+            vendor.set(jvmVendor)
+        })
+        standardInput = System.`in`
+    }
+
+    withType<Jar>().configureEach {
+        from(rootProject.file("LICENSE")) {
+            rename { "LICENSE_${Constants.Mod.ID}" }
+        }
+
+        destinationDirectory.set(rootProject.layout.buildDirectory.dir("libs"))
     }
 }
 
@@ -182,4 +210,36 @@ idea {
         isDownloadJavadoc = true
         isDownloadSources = true
     }
+}
+
+publishMods {
+    type = ALPHA
+    modLoaders.add("neoforge")
+
+    curseforge {
+        requires("applied-energistics-2")
+
+        minecraftVersions.add("26.1-snapshot")
+        clientRequired = true
+        serverRequired = true
+
+        projectId = Constants.Publisher.CURSEFORGE_PROJECT_ID
+        accessToken = System.getenv("CURSEFORGE_TOKEN") ?: error("CURSEFORGE_TOKEN environment variable not set")
+        javaVersions.add(JavaVersion.toVersion(jdkVersion))
+        changelogType = "markdown"
+    }
+
+    modrinth {
+        requires("ae2")
+
+        minecraftVersions.add("26.1-snapshot")
+
+        projectId = Constants.Publisher.MODRINTH_PROJECT_ID
+        accessToken = System.getenv("MODRINTH_TOKEN") ?: error("MODRINTH_TOKEN environment variable not set")
+    }
+
+    dryRun = project.hasProperty("modPublishDryRun")
+    file = tasks.jar.get().archiveFile.get()
+    changelog = System.getenv("CHANGELOG") ?: "No changelog provided"
+    displayName = "[$mcVersion] v${Constants.Mod.VERSION}"
 }
