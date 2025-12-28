@@ -274,7 +274,7 @@ publishMods {
     modrinth {
         requires("ae2")
 
-        minecraftVersions.add("26.1-snapshot")
+        minecraftVersions.add("26.1-snapshot-1")
 
         projectId = Constants.Publisher.MODRINTH_PROJECT_ID
         accessToken = System.getenv("MODRINTH_TOKEN")
