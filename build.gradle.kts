@@ -1,5 +1,6 @@
 import net.neoforged.moddevgradle.internal.RunGameTask
 import org.apache.tools.ant.filters.ReplaceTokens
+import java.io.ByteArrayOutputStream
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -157,6 +158,23 @@ java {
     }
 }
 
+abstract class GitTagTask @Inject constructor(
+    private val execOps: ExecOperations
+) : DefaultTask() {
+
+    @TaskAction
+    fun run() {
+        val out = ByteArrayOutputStream()
+        execOps.exec {
+            commandLine("git", "status", "--porcelain")
+            standardOutput = out
+        }
+        require(out.toString().isBlank()) { "Working tree dirty" }
+    }
+}
+
+tasks.register<GitTagTask>("tagRelease")
+
 tasks {
     withType<JavaCompile> {
         options.encoding = "UTF-8"
@@ -203,6 +221,30 @@ tasks {
 
         destinationDirectory.set(rootProject.layout.buildDirectory.dir("libs"))
     }
+
+    run {
+        val tag = "v${Constants.Mod.VERSION}"
+
+        val releaseTag by registering(Exec::class) {
+            group = "release"
+            description = "Create an annotated git tag"
+
+            doFirst {
+                commandLine("git", "tag", "-s", "-a", tag, "-m", "Release $tag")
+            }
+        }
+
+        register<Exec>("pushReleaseTag") {
+            group = "release"
+            description = "Push the release tag to origin"
+            dependsOn(releaseTag)
+
+            doFirst {
+                commandLine("git", "push", "origin", tag)
+            }
+        }
+    }
+
 }
 
 idea {
