@@ -1,0 +1,5 @@
+{
+  "item.ae2_toggleable_view_cell.toggleable_view_cell": "Переключаемая ячейка просмотра",
+  "item.ae2_toggleable_view_cell.toggleable_view_cell.tooltip.enabled": "Включено: %s",
+  "item.ae2_toggleable_view_cell.toggleable_view_cell.tooltip.howto": "ПКМ, чтобы переключить"
+}
