@@ -1,15 +1,11 @@
 {
-    "type": "minecraft:crafting_shapeless",
-    "category": "misc",
-    "ingredients": [
-        {
-            "item": "ae2:view_cell"
-        },
-        {
-            "item": "minecraft:lever"
-        }
-    ],
-    "result": {
-        "id": "ae2_toggleable_view_cell:toggleable_view_cell"
-    }
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "ae2:view_cell",
+    "minecraft:lever"
+  ],
+  "result": {
+    "id": "ae2_toggleable_view_cell:toggleable_view_cell"
+  }
 }

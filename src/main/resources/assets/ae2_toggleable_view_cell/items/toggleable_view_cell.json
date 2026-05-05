@@ -1,23 +1,23 @@
 {
-    "model": {
-        "type": "minecraft:select",
-        "property": "minecraft:component",
-        "component": "ae2_toggleable_view_cell:state",
-        "cases": [
-            {
-                "when": true,
-                "model": {
-                    "type": "minecraft:model",
-                    "model": "ae2_toggleable_view_cell:item/toggleable_view_cell_enabled"
-                }
-            },
-            {
-                "when": false,
-                "model": {
-                    "type": "minecraft:model",
-                    "model": "ae2_toggleable_view_cell:item/toggleable_view_cell"
-                }
-            }
-        ]
-    }
+  "model": {
+    "type": "minecraft:select",
+    "property": "minecraft:component",
+    "component": "ae2_toggleable_view_cell:state",
+    "cases": [
+      {
+        "when": true,
+        "model": {
+          "type": "minecraft:model",
+          "model": "ae2_toggleable_view_cell:item/toggleable_view_cell_enabled"
+        }
+      },
+      {
+        "when": false,
+        "model": {
+          "type": "minecraft:model",
+          "model": "ae2_toggleable_view_cell:item/toggleable_view_cell"
+        }
+      }
+    ]
+  }
 }

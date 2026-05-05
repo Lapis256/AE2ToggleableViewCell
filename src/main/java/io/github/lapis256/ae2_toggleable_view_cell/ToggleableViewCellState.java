@@ -1,6 +1,5 @@
 package io.github.lapis256.ae2_toggleable_view_cell;
 
-
 import appeng.core.localization.GuiText;
 import com.mojang.serialization.Codec;
 import io.netty.buffer.ByteBuf;

@@ -1,6 +1,6 @@
 import net.neoforged.moddevgradle.internal.RunGameTask
 import org.apache.tools.ant.filters.ReplaceTokens
-import java.io.ByteArrayOutputStream
+import org.gradle.kotlin.dsl.publishMods
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -64,7 +64,6 @@ val generateModMetadata by tasks.registering(ProcessResources::class) {
 neoForge {
     enable {
         version = libs.versions.neoforge.get()
-        this.isDisableRecompilation = System.getenv("CI") == "true"
     }
 
     validateAccessTransformers = true
@@ -158,23 +157,6 @@ java {
     }
 }
 
-abstract class GitTagTask @Inject constructor(
-    private val execOps: ExecOperations
-) : DefaultTask() {
-
-    @TaskAction
-    fun run() {
-        val out = ByteArrayOutputStream()
-        execOps.exec {
-            commandLine("git", "status", "--porcelain")
-            standardOutput = out
-        }
-        require(out.toString().isBlank()) { "Working tree dirty" }
-    }
-}
-
-tasks.register<GitTagTask>("tagRelease")
-
 tasks {
     withType<JavaCompile> {
         options.encoding = "UTF-8"
@@ -244,7 +226,6 @@ tasks {
             }
         }
     }
-
 }
 
 idea {
@@ -261,7 +242,7 @@ publishMods {
     curseforge {
         requires("applied-energistics-2")
 
-        minecraftVersions.add("26.1-snapshot")
+        minecraftVersions.add("26.1.2")
         clientRequired = true
         serverRequired = true
 
@@ -274,14 +255,39 @@ publishMods {
     modrinth {
         requires("ae2")
 
-        minecraftVersions.add("26.1-snapshot-1")
+        minecraftVersions.add("26.1.2")
 
         projectId = Constants.Publisher.MODRINTH_PROJECT_ID
         accessToken = System.getenv("MODRINTH_TOKEN")
     }
 
+    fun pickSingle(dir: File, include: (String) -> Boolean): File {
+        val list = dir.listFiles()?.filter { it.isFile && include(it.name) }.orEmpty()
+        require(list.size == 1) { "Expected exactly 1 match, but got ${list.size}: ${list.map { it.name }}" }
+        return list.single()
+    }
+
+    val releaseFilesDir = providers.gradleProperty("releaseFilesDir").orElse("dist")
+
+    val releaseDirFileProvider = releaseFilesDir.map { layout.projectDirectory.dir(it).asFile }
+
+    val mainJarProvider = releaseDirFileProvider.map { dir ->
+        pickSingle(dir) { name ->
+            name.endsWith(".jar") &&
+                !name.endsWith("-sources.jar") &&
+                !name.endsWith("-javadoc.jar")
+        }
+    }
+
+    val otherJarsProvider = releaseDirFileProvider.map { dir ->
+        pickSingle(dir) { name ->
+            name.endsWith("-sources.jar")
+        }
+    }
+
+    file = mainJarProvider
+    additionalFiles.from(otherJarsProvider)
     dryRun = project.hasProperty("modPublishDryRun")
-    file = tasks.jar.get().archiveFile.get()
     changelog = System.getenv("CHANGELOG") ?: "No changelog provided"
     displayName = "[$mcVersion] v${Constants.Mod.VERSION}"
 }

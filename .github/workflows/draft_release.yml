@@ -1,4 +1,5 @@
 name: Draft Release
+run-name: Draft release for ${{ github.ref_name }}
 
 permissions:
   contents: write
@@ -13,7 +14,7 @@ defaults:
     shell: bash
 
 jobs:
-  release:
+  draft_release:
     runs-on: ubuntu-latest
 
     steps:

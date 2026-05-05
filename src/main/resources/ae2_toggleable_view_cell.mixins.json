@@ -1,16 +1,19 @@
 {
-    "required": true,
-    "minVersion": "0.8",
-    "package": "io.github.lapis256.ae2_toggleable_view_cell.mixin",
-    "refmap": "${mod_id}.refmap.json",
-    "compatibilityLevel": "JAVA_25",
-    "server": [
-    ],
-    "injectors": {
-        "defaultRequire": 1
-    },
-    "mixins": [
-        "MixinMEStorageMenu",
-        "MixinRestrictedInputSlot"
-    ]
+  "required": true,
+  "minVersion": "0.8",
+  "mixinextras": {
+    "minVersion": "0.5.4"
+  },
+  "package": "io.github.lapis256.ae2_toggleable_view_cell.mixin",
+  "refmap": "${mod_id}.refmap.json",
+  "compatibilityLevel": "JAVA_25",
+  "server": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "mixins": [
+    "MixinMEStorageMenu",
+    "MixinRestrictedInputSlot"
+  ]
 }
