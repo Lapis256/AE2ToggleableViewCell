@@ -29,16 +29,6 @@ jobs:
       - name: Build and upload artifacts
         uses: ./.github/actions/build-and-upload-artifacts
 
-      - name: Publish
-        env:
-          CHANGELOG: ${{ github.event.release.body }}
-          CURSEFORGE_TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
-          MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
-#          R2_ACCESS_KEY: ${{ secrets.R2_ACCESS_KEY }}
-#          R2_SECRET_KEY: ${{ secrets.R2_SECRET_KEY }}
-#        run: ./gradlew -Dorg.gradle.s3.endpoint=${{ secrets.R2_ENDPOINT }} curseforge publish
-        run: ./gradlew publishMods
-
       - name: Create draft release and upload assets
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

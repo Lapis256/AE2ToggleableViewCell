@@ -9,8 +9,6 @@ plugins {
     id("java-library")
     id("idea")
 
-    id("localRuntime")
-
     alias(libs.plugins.moddev)
     alias(libs.plugins.modPublishPlugin)
 }
@@ -142,7 +140,7 @@ sourceSets {
 
 dependencies {
     implementation(libs.ae2)
-    localRuntime(libs.jei)
+    runtimeOnly(libs.jei)
 }
 
 java {
@@ -261,32 +259,15 @@ publishMods {
         accessToken = System.getenv("MODRINTH_TOKEN")
     }
 
-    fun pickSingle(dir: File, include: (String) -> Boolean): File {
-        val list = dir.listFiles()?.filter { it.isFile && include(it.name) }.orEmpty()
-        require(list.size == 1) { "Expected exactly 1 match, but got ${list.size}: ${list.map { it.name }}" }
-        return list.single()
-    }
-
     val releaseFilesDir = providers.gradleProperty("releaseFilesDir").orElse("dist")
-
     val releaseDirFileProvider = releaseFilesDir.map { layout.projectDirectory.dir(it).asFile }
+    val (mainJar, otherJars) = releaseDirFileProvider.pickJars(
+        "${project.name}-${Constants.Mod.VERSION}",
+        "sources"
+    )
 
-    val mainJarProvider = releaseDirFileProvider.map { dir ->
-        pickSingle(dir) { name ->
-            name.endsWith(".jar") &&
-                !name.endsWith("-sources.jar") &&
-                !name.endsWith("-javadoc.jar")
-        }
-    }
-
-    val otherJarsProvider = releaseDirFileProvider.map { dir ->
-        pickSingle(dir) { name ->
-            name.endsWith("-sources.jar")
-        }
-    }
-
-    file = mainJarProvider
-    additionalFiles.from(otherJarsProvider)
+    file = mainJar
+    additionalFiles.from(otherJars)
     dryRun = project.hasProperty("modPublishDryRun")
     changelog = System.getenv("CHANGELOG") ?: "No changelog provided"
     displayName = "[$mcVersion] v${Constants.Mod.VERSION}"

@@ -3,6 +3,8 @@
 import org.gradle.api.artifacts.MinimalExternalModuleDependency
 import org.gradle.api.artifacts.dsl.DependencyHandler
 import org.gradle.api.provider.Provider
+import java.io.File
+import java.util.regex.Pattern
 
 
 enum class Order {
@@ -117,3 +119,15 @@ fun extractVersionSegments(version: Provider<String>, numberOfSegments: Int = 1)
 
 fun DependencyHandler.variantOf(dependency: Provider<MinimalExternalModuleDependency>, classifier: String): Provider<MinimalExternalModuleDependency> =
     variantOf(dependency) { classifier(classifier) }
+
+fun Provider<File>.pickSingle(pattern: Pattern): Provider<File> = map { dir ->
+    val list = dir.listFiles()?.filter { it.isFile && pattern.matcher(it.name).matches() }.orEmpty()
+    require(list.size == 1) { "Expected exactly 1 match, but got ${list.size}: ${list.map { it.name }}" }
+    list.single()
+}
+
+fun Provider<File>.pickJars(base: String, vararg classifiers: String): Pair<Provider<File>, List<Provider<File>>> {
+    val mainJar = pickSingle(Pattern.compile("${base}\\.jar"))
+    val otherJars = classifiers.map { classifier -> pickSingle(Pattern.compile("${base}-$classifier\\.jar")) }
+    return Pair(mainJar, otherJars)
+}
