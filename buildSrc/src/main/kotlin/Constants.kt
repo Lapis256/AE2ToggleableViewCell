@@ -6,7 +6,7 @@ object Constants {
         const val NAME = "AE2 Toggleable View Cell"
         const val DESCRIPTION = "A mod that adds a toggleable view cell to AE2"
         const val LICENSE = "MIT"
-        const val VERSION = "26.1-0.2.0"
+        const val VERSION = "26.1-0.2.1"
         const val GROUP = "io.github.lapis256"
         const val AUTHOR = "Lapis256"
         const val REPOSITORY_URL = "https://github.com/Lapis256/AE2ToggleableViewCell"
