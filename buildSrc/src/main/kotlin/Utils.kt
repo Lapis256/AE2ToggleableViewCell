@@ -1,6 +1,8 @@
 @file:Suppress("unused")
 
+import org.gradle.api.Project
 import org.gradle.api.artifacts.MinimalExternalModuleDependency
+import org.gradle.api.artifacts.component.ModuleComponentIdentifier
 import org.gradle.api.artifacts.dsl.DependencyHandler
 import org.gradle.api.provider.Provider
 import java.io.File
@@ -117,7 +119,10 @@ fun extractVersionSegments(versionString: String, numberOfSegments: Int = 1) =
 fun extractVersionSegments(version: Provider<String>, numberOfSegments: Int = 1) =
     extractVersionSegments(version.get(), numberOfSegments)
 
-fun DependencyHandler.variantOf(dependency: Provider<MinimalExternalModuleDependency>, classifier: String): Provider<MinimalExternalModuleDependency> =
+fun DependencyHandler.variantOf(
+    dependency: Provider<MinimalExternalModuleDependency>,
+    classifier: String
+): Provider<MinimalExternalModuleDependency> =
     variantOf(dependency) { classifier(classifier) }
 
 fun Provider<File>.pickSingle(pattern: Pattern): Provider<File> = map { dir ->
@@ -131,3 +136,13 @@ fun Provider<File>.pickJars(base: String, vararg classifiers: String): Pair<Prov
     val otherJars = classifiers.map { classifier -> pickSingle(Pattern.compile("${base}-$classifier\\.jar")) }
     return Pair(mainJar, otherJars)
 }
+
+public fun Project.findDependencyJar(group: String, module: String, configurationName: String = "runtimeClasspath") =
+    configurations.getByName(configurationName).incoming.artifactView {
+        isLenient = true
+        componentFilter { id ->
+            id is ModuleComponentIdentifier &&
+                id.group == group &&
+                id.module == module
+        }
+    }.files.firstOrNull { it.extension == "jar" }

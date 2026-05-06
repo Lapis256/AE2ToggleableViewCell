@@ -1,4 +1,4 @@
-package io.github.lapis256.ae2_toggleable_view_cell.mixin;
+package io.github.lapis256.ae2_toggleable_view_cell;
 
 import net.neoforged.fml.loading.FMLPaths;
 import org.objectweb.asm.tree.ClassNode;

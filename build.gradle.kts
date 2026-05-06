@@ -1,6 +1,7 @@
+import net.neoforged.moddevgradle.dsl.InternalModelHelper
+import net.neoforged.moddevgradle.dsl.RunModel
 import net.neoforged.moddevgradle.internal.RunGameTask
 import org.apache.tools.ant.filters.ReplaceTokens
-import org.gradle.kotlin.dsl.publishMods
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -18,7 +19,6 @@ val mcVersion: String = libs.versions.minecraft.get()
 
 val jdkVersion = Constants.Dev.JDK_VERSION
 val jvmVendor = Constants.Dev.JVM_VENDOR
-
 
 base {
     archivesName = project.name
@@ -72,11 +72,25 @@ neoForge {
         publish(atFile)
     }
 
+    val mixinJar by lazy { findDependencyJar("net.fabricmc", "sponge-mixin") }
+    fun RunModel.enableMixinHotSwapAgent() {
+        @Suppress("UnstableApiUsage")
+        tasks.named<RunGameTask>(InternalModelHelper.nameOfRun(this, "run", "")) {
+            mixinJar?.let {
+                logger.quiet("Configure the Mixin hot-swap agent")
+                jvmArgs("-javaagent:${it.absolutePath}")
+            } ?: run {
+                logger.warn("Mixin hot-swap agent not found, skipping")
+            }
+        }
+    }
+
     runs {
         register("client") {
             client()
             systemProperty("neoforge.enabledGameTestNamespaces", modId)
             jvmArgument("-Dmixin.debug.export=true")
+            enableMixinHotSwapAgent()
         }
 
         register("server") {
@@ -84,6 +98,7 @@ neoForge {
             programArgument("--nogui")
             systemProperty("neoforge.enabledGameTestNamespaces", modId)
             jvmArgument("-Dmixin.debug.export=true")
+            enableMixinHotSwapAgent()
         }
 
         register("gameTestServer") {
