@@ -11,7 +11,6 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.TooltipProvider;
-import org.jspecify.annotations.NonNull;
 
 import java.util.function.Consumer;
 
@@ -26,7 +25,7 @@ public record ToggleableViewCellState(boolean state) implements TooltipProvider 
     }
 
     @Override
-    public void addToTooltip(Item.@NonNull TooltipContext tooltipContext, @NonNull Consumer<Component> builder, @NonNull TooltipFlag tooltipFlag, @NonNull DataComponentGetter dataComponentGetter) {
+    public void addToTooltip(Item.TooltipContext tooltipContext, Consumer<Component> builder, TooltipFlag tooltipFlag, DataComponentGetter dataComponentGetter) {
         var status = (isEnabled() ? GuiText.Yes.text().withStyle(ChatFormatting.GREEN) : GuiText.No.text().withStyle(ChatFormatting.RED));
         builder.accept(Component.translatable("item.ae2_toggleable_view_cell.toggleable_view_cell.tooltip.enabled", status));
         builder.accept(Component.translatable("item.ae2_toggleable_view_cell.toggleable_view_cell.tooltip.howto").withStyle(ChatFormatting.GRAY));

@@ -11,8 +11,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.TooltipDisplay;
-import org.jetbrains.annotations.NotNull;
-import org.jspecify.annotations.NonNull;
 
 import java.util.function.Consumer;
 
@@ -40,7 +38,7 @@ public class ToggleableViewCellItem extends ViewCellItem {
     }
 
     @Override
-    public boolean overrideOtherStackedOnMe(@NotNull ItemStack first, @NotNull ItemStack second, @NotNull Slot slot, @NotNull ClickAction clickAction, @NotNull Player player, @NotNull SlotAccess slotAccess) {
+    public boolean overrideOtherStackedOnMe(ItemStack first, ItemStack second, Slot slot, ClickAction clickAction, Player player, SlotAccess slotAccess) {
         if (!(clickAction == ClickAction.SECONDARY && first.getItem() instanceof ToggleableViewCellItem item)) {
             return false;
         }
@@ -52,7 +50,7 @@ public class ToggleableViewCellItem extends ViewCellItem {
 
     @SuppressWarnings("deprecation")
     @Override
-    public void appendHoverText(@NonNull ItemStack stack, @NonNull TooltipContext context, @NonNull TooltipDisplay display, @NonNull Consumer<Component> builder, @NonNull TooltipFlag tooltipFlag) {
+    public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display, Consumer<Component> builder, TooltipFlag tooltipFlag) {
         getState(stack).addToTooltip(context, builder, tooltipFlag, stack.immutableComponents());
     }
 }

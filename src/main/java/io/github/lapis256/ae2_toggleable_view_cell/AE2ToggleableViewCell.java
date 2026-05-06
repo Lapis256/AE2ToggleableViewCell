@@ -9,9 +9,11 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.neoforge.client.event.RegisterItemDecorationsEvent;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -39,7 +41,7 @@ public class AE2ToggleableViewCell {
 
     public static final Blitter VIEW_CELL_BACKGROUND = Blitter.texture(id("textures/gui/moved_view_cell_slot.png"), 32, 32);
 
-    public AE2ToggleableViewCell(IEventBus modEventBus) {
+    public AE2ToggleableViewCell(IEventBus modEventBus, Dist dist) {
         ITEMS.register(modEventBus);
 
         COMPONENTS.register("state", () -> STATE_COMPONENT);
@@ -47,6 +49,10 @@ public class AE2ToggleableViewCell {
 
         modEventBus.addListener(AE2ToggleableViewCell::commonSetup);
         modEventBus.addListener(AE2ToggleableViewCell::addCreativeTab);
+
+        if (dist == Dist.CLIENT) {
+            modEventBus.addListener(AE2ToggleableViewCell::addItemDecorators);
+        }
     }
 
     public static void commonSetup(FMLCommonSetupEvent event) {
@@ -62,6 +68,10 @@ public class AE2ToggleableViewCell {
         }
 
         event.insertAfter(AEItems.VIEW_CELL.stack(), new ItemStack(TOGGLEABLE_VIEW_CELL_ITEM.get()), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+    }
+
+    public static void addItemDecorators(RegisterItemDecorationsEvent event) {
+        event.register(TOGGLEABLE_VIEW_CELL_ITEM, ToggleableViewCellItemDecorator.INSTANCE);
     }
 
     public static Identifier id(String path) {
