@@ -1,5 +1,6 @@
 [versions]
-plugin_neoforge = "2.0.+"
+plugin_moddev = "2.0.141"
+plugin_modPublishPlugin = "1.1.0"
 
 
 minecraft = "1.21.1"
@@ -16,4 +17,5 @@ ae2 = { module = "org.appliedenergistics:appliedenergistics2", version.ref = "ae
 
 
 [plugins]
-neoforge = { id = "net.neoforged.moddev", version.ref = "plugin_neoforge" }
+moddev = { id = "net.neoforged.moddev", version.ref = "plugin_moddev" }
+modPublishPlugin = { id = "me.modmuss50.mod-publish-plugin", version.ref = "plugin_modPublishPlugin" }
