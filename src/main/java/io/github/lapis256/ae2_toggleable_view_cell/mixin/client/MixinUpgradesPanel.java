@@ -117,12 +117,12 @@ public class MixinUpgradesPanel {
 
     @ModifyVariable(method = "drawBackgroundLayer", at = @At("STORE"), name = "row")
     private int ae2_toggleable_view_cell$updateBeforeRender$modifyRow(int row, @Local(name = "i") int i) {
-        return ae2_toggleable_view_cell$isViewCellPanel ? i / MAX_ROWS : 0;
+        return ae2_toggleable_view_cell$isViewCellPanel ? i / MAX_ROWS : row;
     }
 
     @ModifyVariable(method = "drawBackgroundLayer", at = @At("STORE"), name = "col")
     private int ae2_toggleable_view_cell$updateBeforeRender$modifyCol(int col, @Local(name = "i") int i) {
-        return ae2_toggleable_view_cell$isViewCellPanel ? i % MAX_ROWS : 0;
+        return ae2_toggleable_view_cell$isViewCellPanel ? i % MAX_ROWS : col;
     }
 
     @Definition(id = "col", local = @Local(type = int.class, name = "col"))
@@ -178,7 +178,7 @@ public class MixinUpgradesPanel {
     }
 
     @ModifyArg(method = "drawBackgroundLayer", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;vLine(IIII)V"), index = 2)
-    private int ae2_toggleable_view_cell$updateBeforeRender$modifyVLineMinY(int original, @Local(name = "slotOriginY") int slotOriginY) {
+    private int ae2_toggleable_view_cell$updateBeforeRender$modifyVLineMinY(int original) {
         if (!ae2_toggleable_view_cell$isViewCellPanel) {
             return original;
         }
