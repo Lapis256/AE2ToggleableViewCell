@@ -1,4 +1,4 @@
-package io.github.lapis256.ae2_toggleable_view_cell.mixin;
+package io.github.lapis256.ae2_toggleable_view_cell.mixin.common;
 
 import appeng.menu.me.common.MEStorageMenu;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;

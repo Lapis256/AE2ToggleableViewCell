@@ -234,7 +234,7 @@ idea {
 }
 
 publishMods {
-    type = ALPHA
+    type = BETA
     modLoaders.add("neoforge")
 
     curseforge {

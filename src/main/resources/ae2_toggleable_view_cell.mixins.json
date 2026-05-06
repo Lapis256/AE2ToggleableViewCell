@@ -5,7 +5,7 @@
     "minVersion": "0.5.4"
   },
   "package": "io.github.lapis256.ae2_toggleable_view_cell.mixin",
-  "refmap": "${mod_id}.refmap.json",
+  "plugin": "io.github.lapis256.ae2_toggleable_view_cell.mixin.MixinPlugin",
   "compatibilityLevel": "JAVA_25",
   "server": [
   ],
@@ -13,7 +13,12 @@
     "defaultRequire": 1
   },
   "mixins": [
-    "MixinMEStorageMenu",
-    "MixinRestrictedInputSlot"
+    "common.AccessorRestrictedInputSlot",
+    "common.MixinMEStorageMenu",
+    "common.MixinRestrictedInputSlot"
+  ],
+  "client": [
+    "client.MixinMEStorageScreen",
+    "client.MixinUpgradesPanel"
   ]
 }
