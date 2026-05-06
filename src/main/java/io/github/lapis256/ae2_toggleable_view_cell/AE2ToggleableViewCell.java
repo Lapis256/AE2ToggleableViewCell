@@ -18,7 +18,9 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.fml.loading.FMLLoader;
+import net.neoforged.neoforge.client.event.RegisterItemDecorationsEvent;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
+import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +38,7 @@ public class AE2ToggleableViewCell {
     private static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(MOD_ID);
     public static final DeferredRegister.DataComponents COMPONENTS = DeferredRegister.createDataComponents(Registries.DATA_COMPONENT_TYPE, MOD_ID);
 
-    public static final Supplier<ToggleableViewCellItem> TOGGLEABLE_VIEW_CELL_ITEM = ITEMS.register("toggleable_view_cell", ToggleableViewCellItem::new);
+    public static final DeferredItem<ToggleableViewCellItem> TOGGLEABLE_VIEW_CELL_ITEM = ITEMS.register("toggleable_view_cell", ToggleableViewCellItem::new);
 
     public static final DataComponentType<Boolean> ENABLED_COMPONENT = DataComponentType.<Boolean>builder().persistent(Codec.BOOL).networkSynchronized(ByteBufCodecs.BOOL).build();
 
@@ -53,6 +55,7 @@ public class AE2ToggleableViewCell {
 
         if (FMLLoader.getDist() == Dist.CLIENT) {
             modEventBus.addListener(AE2ToggleableViewCell::clientSetup);
+            modEventBus.addListener(AE2ToggleableViewCell::addItemDecorators);
         }
     }
 
@@ -75,6 +78,10 @@ public class AE2ToggleableViewCell {
         }
 
         event.insertAfter(AEItems.VIEW_CELL.stack(), new ItemStack(TOGGLEABLE_VIEW_CELL_ITEM.get()), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+    }
+
+    public static void addItemDecorators(RegisterItemDecorationsEvent event) {
+        event.register(TOGGLEABLE_VIEW_CELL_ITEM, ToggleableViewCellItemDecorator.INSTANCE);
     }
 
     public static ResourceLocation id(String path) {
