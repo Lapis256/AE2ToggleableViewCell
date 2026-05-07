@@ -9,6 +9,7 @@ import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.RegisterItemDecorationsEvent;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
@@ -43,6 +44,7 @@ public class AE2ToggleableViewCell {
 
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
             modEventBus.addListener(AE2ToggleableViewCell::clientSetup);
+            modEventBus.addListener(AE2ToggleableViewCell::addItemDecorators);
         });
     }
 
@@ -65,6 +67,10 @@ public class AE2ToggleableViewCell {
         }
 
         event.getEntries().putAfter(AEItems.VIEW_CELL.stack(), new ItemStack(TOGGLEABLE_VIEW_CELL_ITEM.get()), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+    }
+
+    public static void addItemDecorators(RegisterItemDecorationsEvent event) {
+        event.register(TOGGLEABLE_VIEW_CELL_ITEM.get(), ToggleableViewCellItemDecorator.INSTANCE);
     }
 
     public static ResourceLocation id(String path) {
