@@ -52,6 +52,9 @@ public class MixinUpgradesPanel {
     @Unique
     private boolean ae2_toggleable_view_cell$isViewCellPanel = false;
 
+    @Unique
+    private static final Blitter ae2_toggleable_view_cell$VIEW_CELL_BACKGROUND = Blitter.texture(AE2ToggleableViewCell.id("textures/gui/moved_view_cell_slot.png"), 32, 32);
+
     @Inject(method = "<init>(Ljava/util/List;Ljava/util/function/Supplier;)V", at = @At("RETURN"))
     private void setAe2_toggleable_view_cell$setIsViewCellPanel(List<Slot> slots, Supplier<List<Component>> tooltipSupplier, CallbackInfo ci) {
         if (slots.isEmpty()) {
@@ -232,6 +235,6 @@ public class MixinUpgradesPanel {
 
     @ModifyReceiver(method = "drawSlot", at = @At(value = "INVOKE", target = "Lappeng/client/gui/style/Blitter;src(IIII)Lappeng/client/gui/style/Blitter;"))
     private static Blitter ae2_toggleable_view_cell$updateBeforeRender$modifyDrawSlot(Blitter original, int x, int y, int w, int h) {
-        return ae2_toggleable_view_cell$isDrawViewSlot.get() ? AE2ToggleableViewCell.VIEW_CELL_BACKGROUND : original;
+        return ae2_toggleable_view_cell$isDrawViewSlot.get() ? ae2_toggleable_view_cell$VIEW_CELL_BACKGROUND : original;
     }
 }

@@ -2,7 +2,6 @@ package io.github.lapis256.ae2_toggleable_view_cell;
 
 import appeng.api.ids.AECreativeTabIds;
 import appeng.api.upgrades.Upgrades;
-import appeng.client.gui.style.Blitter;
 import appeng.core.definitions.AEItems;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
@@ -38,8 +37,6 @@ public class AE2ToggleableViewCell {
             .persistent(ToggleableViewCellState.CODEC)
             .networkSynchronized(ToggleableViewCellState.STREAM_CODEC)
             .build();
-
-    public static final Blitter VIEW_CELL_BACKGROUND = Blitter.texture(id("textures/gui/moved_view_cell_slot.png"), 32, 32);
 
     public AE2ToggleableViewCell(IEventBus modEventBus, Dist dist) {
         ITEMS.register(modEventBus);
