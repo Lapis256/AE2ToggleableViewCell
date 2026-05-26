@@ -2,7 +2,6 @@ package io.github.lapis256.ae2_toggleable_view_cell;
 
 import appeng.api.ids.AECreativeTabIds;
 import appeng.api.upgrades.Upgrades;
-import appeng.client.gui.style.Blitter;
 import appeng.core.definitions.AEItems;
 import com.mojang.serialization.Codec;
 import net.minecraft.client.renderer.item.ItemProperties;
@@ -25,8 +24,6 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.function.Supplier;
-
 
 @Mod(AE2ToggleableViewCell.MOD_ID)
 public class AE2ToggleableViewCell {
@@ -41,8 +38,6 @@ public class AE2ToggleableViewCell {
     public static final DeferredItem<ToggleableViewCellItem> TOGGLEABLE_VIEW_CELL_ITEM = ITEMS.register("toggleable_view_cell", ToggleableViewCellItem::new);
 
     public static final DataComponentType<Boolean> ENABLED_COMPONENT = DataComponentType.<Boolean>builder().persistent(Codec.BOOL).networkSynchronized(ByteBufCodecs.BOOL).build();
-
-    public static final Blitter VIEW_CELL_BACKGROUND = Blitter.texture(id("textures/gui/moved_view_cell_slot.png"), 32, 32);
 
     public AE2ToggleableViewCell(IEventBus modEventBus) {
         ITEMS.register(modEventBus);
